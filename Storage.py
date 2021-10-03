@@ -3,85 +3,108 @@ import numpy as np
 import datetime
 import math
 
-class TrainCart:
-    def __init__(self, start_position = [0, 1], start_velocity = 0.1, mass = 67.5 * 2170, max_acceleration = 3):
+class TrainTrack:
+    def __init__(self, carts  100, track_dimensions = [20000, 2000], mass_per_cart = 67.5 * 2170), power_demand = 0):
         
-        self.position = start_position# first index is position on the track, second index is either upwards or downwards (or a string if on hold).
-        self.velocity = start_velocity
-        self.mass = mass
+        # TODO make it so that the carts get placed in their relevant place instead of being put by default on top.
+        self.carts_on_track = []# Each cart on the track will be reprisented by a number which indicates its position on the track.
+        self.velocity = 0# The velocity of the track.
+        self.net_force = 0
+        self.carts_of_track = {"Bottom" : [], "Top" : carts}# All the carts by default start at the top.
+        
+        self.track_length = track_dimensions[0]
+        self.track_height = track_dimensions[1]
+        self.angle = np.arctan(track_dimensions[1] / track_dimensions[0])
+        
+        self.mass_per_cart = mass_per_cart
+        
+        self.power_demand = power_demand
         self.power = 0
-        self.acceleration = 0
-        self.max_acceleration = max_acceleration
         
-        self.friction_coefficient = 0.001
-        self.drag_coefficient = 1.05 * (2.591 * 2.438)
         
-    def do_tick(self, delta_time, angle, g = 9.81):
-        if type(self.position[1])==int:
-            
-            self.acceleration = self.get_acceleration(angle, g)
-            self.velocity = self.velocity + self.acceleration * delta_time
-            self.position[0] = self.position[0] + self.velocity * delta_time + 0.5 * self.acceleration * delta_time**2
+        self.minimal_distance = 100
+        
+        
+        
+        self.force_of_generator = 0
+        
+        
+        
+        
+        
+        self.losses = {"Friction" : 0, "Efficiency" : 0}
     
-    def get_friction_acceleration(self, angle, g = 9.81, density_air = 1.275):
+    def get_friction(self, velocity = math.nan, density_air = 1.275):
         # Todo add proper friction https://www.sciencedirect.com/science/article/pii/S0043164814003718
+        g = 9.81
         
-        return 0.5 * density_air * self.velocity**2 * self.drag_coefficient / self.mass + abs(self.velocity) * np.cos(angle) * g
+        drag_coefficient = 1.05 * (2.591 * 2.438)
+        friction_coefficient = 0.01# Uit duim gezogen
+        
+        if velocity == math.nan:
+            velocity = self.velocity
+        
+        return len(self.carts_of_track) * np.sign(velocity) * (density_air * velocity**2 * drag_coefficient / 2 + abs(velocity) * np.cos(self.angle) * g * self.mass_per_cart * friction_coefficient)
     
-    def get_acceleration(self, angle, g = 9.81):
-        acceleration = self.power / (abs(self.velocity) * self.mass) - np.sin(angle) * g - np.sign(self.velocity) * self.get_friction_acceleration(angle, g)
-        
-        if acceleration == math.nan or acceleration > self.max_acceleration:
-            if self.power != 0:
-                return self.max_acceleration
-            else:
-                return 0
+    
+    def get_gravity(self):
+        return - np.sin(self.angle) * g * len(self.carts_on_track) * self.mass_per_cart
+    
+    def get_kinetic_energy_per_cart(self, velocity = math.nan):
+        if velocity = math.nan:
+            return (1/2) * self.mass_per_cart * self.velocity**2
         else:
-            return acceleration
+            return (1/2) * self.mass_per_cart * velocity**2
     
-    def set_power_from_velocity(self, angle, desired_velocity, desired_final_acceleration, g = 9.81):
-        current_velocity = self.velocity
-        self.velocity = desired_velocity
+    def add_cart(self, location = ""):
         
-        required_power = (np.sin(angle) * g + np.sign(self.velocity) * self.get_friction_acceleration(angle, g) + desired_final_acceleration) * abs(self.velocity) * self.mass
+        if np.sign(self.velocity) > 0 and location == "":
+            location = "Bottom"
+        elif np.sign(self.velocity) <= 0 and location == ":
+            location = "Top"
         
-        if required_power < 0:
-            self.power = 0
+        
+        if (location == "Top" and (self.track_length - max(self.carts_on_track)) > self.minimal_distance) or (location == "Bottom" and min(self.carts_on_track) > self.minimal_distance):
+            
+            self.velocity = np.sign(self.velocity) * np.sqrt(len(self.carts_on_track) self.velocity**2 / (len(self.carts_on_track) + 1))# v_new = sqrt[m_intital v_initial /(m_initial + m_cart)]
+            
+            if location == "Top":
+                if self.carts_of_track["Top"] > 0:
+                    self.carts_of_track.append(self.track_length)
+                    self.carts_of_track["Top"] = self.carts_of_track["Top"] - 1
+                    return True
+                else:
+                    return False
+            elif location == "Bottom":
+                if self.carts_of_track["Bottom"] > 0:
+                    self.carts_of_track.append(0)
+                    self.carts_of_track["Bottom"] = self.carts_of_track["Bottom"] - 1
+                    return True
+                else:
+                    return False
+        
         else:
-            self.power = required_power
-        
-        self.velocity = current_velocity
-        
-
-
-
-cart = TrainCart()
-
-cart.set_power_from_velocity(np.arctan(1/10), 10, 1)
-print(cart.position, cart.velocity, cart.acceleration, cart.power)
-for i in range(0, 150):
-    cart.do_tick(0.05, np.arctan(1/10))
-    print(cart.position, cart.velocity, cart.acceleration, cart.power)
-
-
-cart.set_power_from_velocity(np.arctan(1/10), -10, 1)
-print(cart.position, cart.velocity, cart.acceleration, cart.power)
-for i in range(0, 150):
-    cart.do_tick(0.05, np.arctan(1/10))
-    print(cart.position, cart.velocity, cart.acceleration, cart.power)
+            return False
     
-
-"""
-
-class TrainTack:
-    def __init__(self, dimensions_of_track = [10000, 10000], angle_of_track = np.arctan(1/10), start_carts = []):
+    def remove_cart(self, delta_time, index):
         
-        self.carts = start_carts
-        self.dimensions_of_track = dimensions_of_track
-        self.angle = angle_of_track
+        if len(self.carts_on_track) < 1:
+            return False
+            energy_left_over = 0
+        elif len(self.carts_on_track) == 1:
+            energy_left_over = self.get_kinetic_energy_per_cart()
+            
+        
+        
     
+    def set_force(self):
+        
+        
+        
+    
+    def do_tick(self, delta_time):
         
         
 
 
-"""
+
