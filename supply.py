@@ -78,7 +78,7 @@ class WindSupplyDummy:
         
         self.data = ["lol there is no data"]
     
-    def output(self, time_seconds, time_days = 0, average_power = 1000):
+    def output(self, time_seconds, time_days = 0, average_power = 3500 * 3.6*10**6 / (365 * 24 * 3600)):
         
         day_factor = np.cos(2 * np.pi * time_days / 360)
         
@@ -90,7 +90,7 @@ from matplotlib import cm
 from Helpers import make_3Dfunction_plot
 
 
-#"""
+"""
 wind_supply = WindSupply()
 make_3Dfunction_plot(wind_supply.output)
 

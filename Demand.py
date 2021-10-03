@@ -33,7 +33,7 @@ class Households:
                 print("Panic: column", data.columns[i],"of profile", profiel, "doesn't add up to 1 when summed. It is", data[data.columns[i]].sum(), "instead.")
         
         for i in range(len(amount_of_households_per_type)):
-            data[data.columns[i + 2]] = data[data.columns[i + 2]] * power_consumption_per_type[i]* 3.6*10**6 / (15 * 60) * amount_of_households_per_type[i]# This calculation assumes 15 minutes between the datapoints.
+            data[data.columns[i + 2]] = data[data.columns[i + 2]] * power_consumption_per_type[i] * 3.6*10**6 / (15 * 60) * amount_of_households_per_type[i]# This calculation assumes 15 minutes between the datapoints.
         
         time_since_start = data["Start time"] - start_time
         data["Seconds"] = [time.total_seconds() for time in time_since_start]#[i * 15 * 60 for i in range(0,len(data["Start time"]))]
@@ -87,7 +87,7 @@ from matplotlib import cm
 from Helpers import make_3Dfunction_plot
 
 
-#"""
+"""
 households = Households()
 #print(households.data.head(100))
 print(households.data)
