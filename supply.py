@@ -1,17 +1,8 @@
-
-# coding: utf-8
-
-# In[2]:
-
-#importing libraries
-
 import numpy as np 
 import pandas as pd
 import datetime
 import math
 
-
-# In[77]:
 
 class WindSupply:
     """
@@ -43,7 +34,7 @@ class WindSupply:
         
         data.loc[(data.output > 2000000),'output']=2000000
         
-        K = hour_amount/wind_supply.data["output"].mean()
+        K = hour_amount / data["output"].mean()
         data["output_adjusted"] = K * 1.33 * 1/2 * ρ * Cp * A * (data["wind speed"])**3 #calculating the power output in watt for each given windspeed.
         
         self.data = data
@@ -79,78 +70,31 @@ class WindSupply:
         interpolation_factor = (wanted_time - self.data["Seconds"][estimated_row_bot]) / (self.data["Seconds"][estimated_row_bot + 1] - self.data["Seconds"][estimated_row_bot]) # time_difference_for_bot_point / time_difference_between_points
         
         return self.data["output"][estimated_row_bot] + interpolation_factor * (self.data["output"][estimated_row_bot + 1] - self.data["output"][estimated_row_bot])
+
+
+class WindSupplyDummy:
+
+    def __init__(self):
         
-       
+        self.data = ["lol there is no data"]
+    
+    def output(self, time_seconds, time_days = 0, average_power = 1000):
         
-
-wind_supply = WindSupply()
-
-#wind_supply.data
-#wind_supply.data["output_adjusted"].mean()
-#print(wind_supply.data.columns)
-
+        day_factor = np.cos(2 * np.pi * time_days / 360)
         
-
-
-# In[78]:
+        return average_power * (1 - 0.5 * np.sin(2 * np.pi * time_seconds / (24 * 3600)) + 0.25 * day_factor)
 
 from mpl_toolkits.mplot3d import axes3d
 from matplotlib import pyplot
 from matplotlib import cm
-
-def make_3Dfunction_plot(function, amount_of_days = 364, increments_in_day = 200):
-    """
-    Makes a 3D plot like in the paper of Elke Klaasen (on the X axis the hours of the day, Y axis the days (of the year) and on the Z axis the actual value). Sadly makes a surface plot instead of a wireframe plot this is because the heatmap didn't work properly with the wireframe.
-    
-    function is the function of which it is going to make the wire plot
-    amount_of_days is the amount of days you want the plot to coverting
-    increments_in_day is the amount of steps during each day. Making this number large increases the x-axis accuracy of the plot but also increases computational time greatly.
-    """
-    
-    x = []
-    y = []
-    z = []
-    
-    x_new = []
-    y_new = []
-    z_new = []
-    
-    for day in range(0, amount_of_days):# For each individual day on the y-axis you make a new array containing the values for each hour (including the x and y-axis values themselfs) this you then append to the total array.
-        for hour in np.linspace(0, 24, increments_in_day, endpoint = True):
-            x_new.append(hour)
-            y_new.append(day)
-            z_new.append(function(hour * 3600, day))
-        
-        x.append(x_new)
-        y.append(y_new)
-        z.append(z_new)
-        
-        x_new = []
-        y_new = []
-        z_new = []
-    
-    x = np.array(x)
-    y = np.array(y)
-    z = np.array(z)
-    
-   
-    
-    #print(x, np.shape(x))
-    #print(y, np.shape(y))
-    #print(z, np.shape(y))
-    
-    fig = pyplot.figure(figsize=(8,8))
-    wf = fig.add_subplot(111, projection='3d')
-    #wf.plot_wireframe(x,y,z, cmap = cm.coolwarm, linewidth = 1)# Wireframe doesn't work properly
-    wf.plot_surface(x,y,z, cmap = cm.coolwarm, linewidth = 1)# Make the surface plot instead with a colour map and still some wireframe
-    wf.view_init(60, -120)# Its reversed from matplotlib
-   
-    pyplot.show()
-    
+from Helpers import make_3Dfunction_plot
 
 
 #"""
 wind_supply = WindSupply()
+make_3Dfunction_plot(wind_supply.output)
+
+wind_supply = WindSupplyDummy()
 make_3Dfunction_plot(wind_supply.output)
 #"""
 
