@@ -91,7 +91,7 @@ class Controller:
         self.data["Time"].append(self.time)
         self.data["Supply"].append(self.supply.output(self.time))# Inefficient that we call these functions 3 times (here twice and once in controller).
         self.data["Demand"].append(self.demand.consumption(self.time))
-        self.data["Storage"].append(self.train_track.power)
+        self.data["Storage"].append(self.train_track.get_power())# power)
         self.data["Difference"].append(self.demand.consumption(self.time) - self.supply.output(self.time) + self.train_track.power)
         self.data["Losses"].append(sum(self.train_track.losses.values()))
         
