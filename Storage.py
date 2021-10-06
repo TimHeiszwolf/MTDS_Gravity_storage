@@ -4,30 +4,23 @@ import datetime
 import math
 
 class TrainTrack:
-    def __init__(self, carts = 100, track_dimensions = [20000, 2000], mass_per_cart = 67.5 * 2170, minimal_distance = 100):
+    def __init__(self, carts = 100, track_dimensions = [20000, 2000], mass_per_cart = 12.192 * 2.438 * 2.591 * 2170, minimal_distance = 100, efficiency_generator = [0.6, 1.4]):
         
         # TODO make it so that the carts get placed in their relevant place instead of being put by default on top.
         self.carts_on_track = []# Each cart on the track will be reprisented by a number which indicates its position on the track.
-        self.velocity = 0# The velocity of the track.
-        self.net_force = 0
+        self.velocity = 0# The velocity of the consolidated cart.
         self.carts_of_track = {"Bottom" : 0, "Top" : carts}# All the carts by default start at the top.
         
         self.track_length = track_dimensions[0]
         self.track_height = track_dimensions[1]
-        self.angle = np.arctan(track_dimensions[1] / track_dimensions[0])
+        self.angle = np.arctan(track_dimensions[1] / track_dimensions[0])# TODO: Wrong need to be sin instead of 
         
         self.mass_per_cart = mass_per_cart
-        
-        
-        
         self.minimal_distance = minimal_distance
         
-        
-        
         self.force_of_generator = 0
-        self.efficiency_generator = 0.6# TODO IMPLIMENT SOMEHWERE
+        self.efficiency_generator = efficiency_generator# TODO IMPLIMENT SOMEHWERE
         self.other_power = 0
-        
         
         self.losses = {"Friction" : 0, "Efficiency" : 0}
     
@@ -42,12 +35,12 @@ class TrainTrack:
             velocity = self.velocity
         
         
-        return -np.sign(velocity) *  len(self.carts_of_track) * (density_air * velocity**2 * drag_coefficient + np.cos(self.angle) * g * self.mass_per_cart * friction_coefficient)
+        return -np.sign(velocity) *  len(self.carts_of_track) * (density_air * velocity**2 * drag_coefficient + np.cos(self.angle) * g * self.mass_per_cart * friction_coefficient)#TODO Make into rolling resistance
     
     
     def get_gravity(self):
         g = 9.81
-        return - np.sin(self.angle) * g * len(self.carts_on_track) * self.mass_per_cart
+        return -np.sin(self.angle) * g * len(self.carts_on_track) * self.mass_per_cart
     
     def get_kinetic_energy_per_cart(self, velocity = "NaN"):
         if velocity == "NaN":
@@ -104,31 +97,37 @@ class TrainTrack:
         elif self.carts_on_track[index] <= self.track_length / 2:
             location = "Bottom"
         
-        if len(self.carts_on_track) == 1:
-            energy_left_over = self.get_kinetic_energy_per_cart()
-            
-            self.carts_on_track = []
-            self.carts_of_track[location] = self.carts_of_track[location] + 1
-        elif len(self.carts_on_track) > 1:
+        if len(self.carts_on_track) >= 1:
             energy_left_over = self.get_kinetic_energy_per_cart()
             
             self.carts_on_track.pop(index)
             self.carts_of_track[location] = self.carts_of_track[location] + 1
         
-        self.other_power = self.other_power - energy_left_over * 6 / (delta_time * np.pi**2)# TODO: maybe turn this into a power series of 1/x^2 from 1 to inf (is equal to pi^2/6) # Sum[(100/(\[Pi]^2/6))/x^2, {x, 1, \[Infinity]}]
+        self.other_power = self.other_power -  energy_left_over / delta_time
     
     def get_power(self):
-        return self.other_power + self.force_of_generator * self.velocity
+        
+        if self.velocity > 0:
+            efficiency = self.efficiency_generator[1]
+        elif self.velocity <= 0:
+            efficiency = self.efficiency_generator[0]
+        
+        
+        
+        return self.efficiency_generator[0] * self.other_power + efficiency * self.force_of_generator * self.velocity
     
     
     def do_tick(self, delta_time):
         
+        if self.velocity > 0:
+            efficiency = self.efficiency_generator[1]
+        elif self.velocity <= 0:
+            efficiency = self.efficiency_generator[0]
         
+        self.losses["Friction"] = abs(self.get_friction() * self.velocity) * delta_time
+        self.losses["Efficiency"] = (1 - self.efficiency_generator[0]) * self.other_power + abs((1 - efficiency) * self.force_of_generator * self.velocity) * delta_time# The inverse of the power, so the power that is wasted due to efficiency.
         
-        self.losses["Friction"] = abs(self.get_friction()) * self.velocity * delta_time
-        self.losses["Efficiency"] = (1 - self.efficiency_generator) * abs(self.get_power())#TODO: impliment such that it switches efficiency based on wheater it is postive or negative energy generation
-        self.other_power = self.other_power / 2# TODO: properly explain this power series of 1/x^2 from 1 to inf (is equal to pi^2/6) # Sum[(100/(\[Pi]^2/6))/x^2, {x, 1, \[Infinity]}]
-        
+        self.other_power = 0
         
         if len(self.carts_on_track) == 0:# Prevent devide by zero error
             acceleration = 0
@@ -137,11 +136,11 @@ class TrainTrack:
             acceleration = (self.get_gravity() + self.get_friction() + self.force_of_generator) / (len(self.carts_on_track) * self.mass_per_cart)
         
         change_in_position = self.velocity * delta_time + 0.5 * acceleration * delta_time**2
-        self.carts_on_track = [i + change_in_position for i in self.carts_on_track]# Change the position of each of the carts.
+        self.carts_on_track = [current_position_of_cart + change_in_position for current_position_of_cart in self.carts_on_track]# Change the position of each of the carts.
         self.velocity = self.velocity + acceleration * delta_time
     
     def return_data(self):
-        return {"Positions": np.round(self.carts_on_track, 2), "Velocity" : np.round(self.velocity, 2), "Forces (gravity, friction, generator)" : [np.round(self.get_gravity()), np.round(self.get_friction()), np.round(self.force_of_generator)], "Power" : np.round(self.get_power()), "Other carts" : self.carts_of_track}
+        return {"Positions": np.round(self.carts_on_track, 2), "Velocity" : np.round(self.velocity, 2), "Forces (gravity, friction, generator)" : [np.round(self.get_gravity()), np.round(self.get_friction()), np.round(self.force_of_generator)], "Power" : np.round(self.get_power()), "Other carts" : self.carts_of_track, "Losses (friction, efficiency)" : np.round([self.losses["Friction"], self.losses["Efficiency"]],1)}
         
 
 """
@@ -179,7 +178,7 @@ for i in range(20):
     train_track.do_tick(1)
     time = time + 1
 
-print("\n Running until at the bottum. \n")
+print("\n Running until at the bottom. \n")
 train_track.force_of_generator = - (train_track.get_gravity() + train_track.get_friction())
 
 print(time, train_track.return_data())

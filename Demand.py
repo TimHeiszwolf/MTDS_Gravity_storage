@@ -87,7 +87,7 @@ from matplotlib import cm
 from Helpers import make_3Dfunction_plot
 
 
-"""
+#"""
 households = Households()
 #print(households.data.head(100))
 print(households.data)

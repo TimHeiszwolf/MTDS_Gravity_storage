@@ -42,12 +42,12 @@ class Controller:
                 train_track.remove_cart(self.delta_time, i)
                 
                 if self.allow_new_carts:
-                    train_track.add_cart("Top")
+                    train_track.add_cart("Bottom")
             elif train_track.carts_on_track[i] < 0:# If the cart is at the bottom of the track then remove (and replace) it
                 train_track.remove_cart(self.delta_time, i)
                 
                 if self.allow_new_carts:
-                    train_track.add_cart("Bottom")
+                    train_track.add_cart("Top")
             else:# Otherwise continue
                 continue
                 
@@ -92,7 +92,7 @@ class Controller:
         self.data["Supply"].append(self.supply.output(self.time))# Inefficient that we call these functions 3 times (here twice and once in controller).
         self.data["Demand"].append(self.demand.consumption(self.time))
         self.data["Storage"].append(self.train_track.get_power())# power)
-        self.data["Difference"].append(self.demand.consumption(self.time) - self.supply.output(self.time) + self.train_track.power)
+        self.data["Difference"].append(self.demand.consumption(self.time) - self.supply.output(self.time) + self.train_track.get_power())
         self.data["Losses"].append(sum(self.train_track.losses.values()))
         
         self.controller()
