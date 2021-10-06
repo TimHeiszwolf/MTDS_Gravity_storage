@@ -10,10 +10,11 @@ class TrainTrack:
         self.carts_on_track = []# Each cart on the track will be reprisented by a number which indicates its position on the track.
         self.velocity = 0# The velocity of the consolidated cart.
         self.carts_of_track = {"Bottom" : 0, "Top" : carts}# All the carts by default start at the top.
+                
         
-        self.track_length = track_dimensions[0]
-        self.track_height = track_dimensions[1]
         self.angle = np.arctan(track_dimensions[1] / track_dimensions[0])# TODO: Wrong need to be sin instead of 
+        self.track_length = np.sqrt(track_dimensions[0]**2 + track_dimensions[1]**2)
+        self.track_height = track_dimensions[1]
         
         self.mass_per_cart = mass_per_cart
         self.minimal_distance = minimal_distance
@@ -143,10 +144,10 @@ class TrainTrack:
         return {"Positions": np.round(self.carts_on_track, 2), "Velocity" : np.round(self.velocity, 2), "Forces (gravity, friction, generator)" : [np.round(self.get_gravity()), np.round(self.get_friction()), np.round(self.force_of_generator)], "Power" : np.round(self.get_power()), "Other carts" : self.carts_of_track, "Losses (friction, efficiency)" : np.round([self.losses["Friction"], self.losses["Efficiency"]],1)}
         
 
-"""
+#"""
 train_track = TrainTrack()
 time = 0
-train_track.carts_on_track.append(19000)
+train_track.carts_on_track.append(train_track.track_length-1000)
 
 for i in range(10):
     print(time, train_track.return_data())
@@ -182,7 +183,7 @@ print("\n Running until at the bottom. \n")
 train_track.force_of_generator = - (train_track.get_gravity() + train_track.get_friction())
 
 print(time, train_track.return_data())
-for i in range(2000):
+for i in range(2050):
     #print(time, train_track.return_data())
     train_track.do_tick(1)
     time = time + 1
