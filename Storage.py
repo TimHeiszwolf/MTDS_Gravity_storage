@@ -7,7 +7,7 @@ class TrainTrack:
     """
     This class is the class that actually simulates the tracks/storage solution. See the report for details. In short it simulates the carts on the tracks as one giant cart and thus applies friction/gravity/braking only to that giant monolithic block. It adds carts by pretending the mass of the giant block increases and doing a convervation of energy calculation. It does keep track of the location of each cart and based on that it can remove carts. If that happens the power output is increased such that the kinetic energy is outputed trough that.
     """
-    def __init__(self, carts = 100, track_dimensions = [20000, 2000], mass_per_cart = 12.192 * 2.438 * 2.591 * 2170, minimal_distance = 100, efficiency_generator = [0.6, 1.4]):
+    def __init__(self, carts = 100, track_dimensions = [20000, 2000], mass_per_cart = 12.192 * 2.438 * 2.591 * 2170, minimal_distance = 100, efficiency_generator = [0.9, 1/0.7]):
         """
         The init fucntion.
         
@@ -15,7 +15,7 @@ class TrainTrack:
         track_dimensions is a list with the first element being the distance (in the x axis) while the second element is the height.
         mass_per_cart is a number representing the amount of mass per cart.
         minimal_distance is a number which specifies the minimal amount of distance needed betwee carts.
-        efficiency_generator is a list with the first element being the efficiency of generating power and the second element being the efficiency of storing power.
+        efficiency_generator is a list with the first element being the efficiency of generating power and the second element being the efficiency of storing power. Default values are based on sources (which you can find in the report).
         """
         
         self.carts_on_track = []# Each cart on the track will be reprisented by a number which indicates its position on the track.
