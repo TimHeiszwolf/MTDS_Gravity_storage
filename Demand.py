@@ -81,6 +81,20 @@ class Households:
         else:
             return results
 
+
+class HouseholdsDummy:
+
+    def __init__(self, multiplication = 1):
+        
+        self.data = ["lol there is no data"]
+        self.multiplication = multiplication
+    
+    def consumption(self, time_seconds, time_days = 0, average_power = 3500 * 3.6*10**6 / (365 * 24 * 3600)):
+        
+        day_factor = np.cos(2 * np.pi * time_days / 360)
+        
+        return 2000000#self.multiplication * average_power * (1 - 0.5 * np.sin(2 * np.pi * (time_seconds + 3600) / (24 * 3600)) + 0.25 * day_factor)
+
 from mpl_toolkits.mplot3d import axes3d
 from matplotlib import pyplot
 from matplotlib import cm

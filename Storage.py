@@ -20,7 +20,7 @@ class TrainTrack:
         
         self.carts_on_track = []# Each cart on the track will be reprisented by a number which indicates its position on the track.
         self.velocity = 0# The velocity of the consolidated cart.
-        self.carts_of_track = {"Bottom" : 0, "Top" : carts}# All the carts by default start at the top.
+        self.carts_of_track = {"Bottom" : 50, "Top" : carts}# All the carts by default start at the top.
         self.losses = {"Friction" : 0, "Efficiency" : 0}
         
         self.angle = np.arctan(track_dimensions[1] / track_dimensions[0])# Calculate the angle of the tracks.
@@ -135,10 +135,7 @@ class TrainTrack:
         """
         Gets the amount of power that the track generates. Both based on the generator and the other sources of power
         """
-        if self.velocity > 0:# Checks if the generator is inputting power or generating power.
-            efficiency = self.efficiency_generator[1]
-        elif self.velocity <= 0:
-            efficiency = self.efficiency_generator[0]
+        efficiency = self.get_efficiency_generator()
         
         return self.efficiency_generator[0] * self.other_power + efficiency * self.force_of_generator * self.velocity
     
@@ -149,10 +146,8 @@ class TrainTrack:
         
         delta_time is the size of the tick/time-step.
         """
-        if self.velocity > 0:
-            efficiency = self.efficiency_generator[1]
-        elif self.velocity <= 0:
-            efficiency = self.efficiency_generator[0]
+        
+        efficiency = self.get_efficiency_generator()
         
         self.losses["Friction"] = abs(self.get_friction() * self.velocity) * delta_time
         self.losses["Efficiency"] = (1 - self.efficiency_generator[0]) * self.other_power + abs((1 - efficiency) * self.force_of_generator * self.velocity) * delta_time# The inverse of the power, so the power that is wasted due to efficiency.
@@ -168,6 +163,14 @@ class TrainTrack:
         change_in_position = self.velocity * delta_time + 0.5 * acceleration * delta_time**2# Do the kinematics of the position.
         self.carts_on_track = [current_position_of_cart + change_in_position for current_position_of_cart in self.carts_on_track]# Change the position of each of the carts.
         self.velocity = self.velocity + acceleration * delta_time
+    
+    def get_efficiency_generator(self):
+        if self.velocity > 0:
+            efficiency = self.efficiency_generator[1]
+        elif self.velocity <= 0:
+            efficiency = self.efficiency_generator[0]
+        
+        return efficiency
     
     def return_data(self):
         """

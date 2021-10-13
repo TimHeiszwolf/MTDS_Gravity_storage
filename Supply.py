@@ -21,12 +21,12 @@ class WindSupply:
         data["Seconds"] = [time.total_seconds() for time in time_since_start]
         data["Days"] = data["Seconds"] / (3600 * 24)
              
-        ρ = 1.225 #kg/m^3 air density
-        Cp = 0.3 #power efficiency factor
-        A = 5027 #sweep area in m^2
-        K = 0 #efficiency difference land sea
-        T = 60 #amount of windmills in the park
-        year_amount = 435*10**9 #wh per year
+        ρ = 1.225# kg/m^3 air density
+        Cp = 0.3# power efficiency factor
+        A = 5027# sweep area in m^2
+        K = 0# efficiency difference land sea
+        T = 60# amount of windmills in the park
+        year_amount = 435*10**9# wh per year
         
         hour_amount = year_amount/(365*24*T) #wh per hour
         
@@ -74,15 +74,16 @@ class WindSupply:
 
 class WindSupplyDummy:
 
-    def __init__(self):
+    def __init__(self, multiplication = 1):
         
         self.data = ["lol there is no data"]
+        self.multiplication = multiplication
     
     def output(self, time_seconds, time_days = 0, average_power = 3500 * 3.6*10**6 / (365 * 24 * 3600)):
         
         day_factor = np.cos(2 * np.pi * time_days / 360)
         
-        return average_power * (1 - 0.5 * np.sin(2 * np.pi * time_seconds / (24 * 3600)) + 0.25 * day_factor)
+        return 1000000#self.multiplication * average_power * (1 - 0.5 * np.sin(2 * np.pi * time_seconds / (24 * 3600)) + 0.25 * day_factor)
 
 from mpl_toolkits.mplot3d import axes3d
 from matplotlib import pyplot
