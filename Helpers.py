@@ -56,5 +56,7 @@ def make_3Dfunction_plot(function, amount_of_days = 364, increments_in_day = 200
     wf.set_xlabel("Time (hours)")
     wf.set_ylabel("Time (days)")
     wf.set_zlabel(zlabel)
+    wf.set_xlim(0, 24)
+    wf.set_ylim(0, amount_of_days)
     
     pyplot.show()
