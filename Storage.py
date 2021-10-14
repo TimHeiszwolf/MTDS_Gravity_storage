@@ -5,40 +5,40 @@ import math
 
 class TrainTrack:
     """
-    This class is the class that actually simulates the tracks/storage solution. See the report for details. In short it simulates the carts on the tracks as one giant cart and thus applies friction/gravity/braking only to that giant monolithic block. It adds carts by pretending the mass of the giant block increases and doing a convervation of energy calculation. It does keep track of the location of each cart and based on that it can remove carts. If that happens the power output is increased such that the kinetic energy is outputed trough that.
+    This is the class that actually simulates the tracks/storage solution. See the report for details. In short it simulates the carts on the tracks as one giant cart and thus applies friction/gravity/braking only to that giant monolithic block. It adds carts by pretending the mass of the giant block increases and doing a conservation of energy calculation. It does keep track of the location of each cart and based on that it can remove carts. If that happens the power output is increased such that the kinetic energy is outputed trough that.
     """
     def __init__(self, carts = 150, track_dimensions = [20000, 2000], mass_per_cart = 12.192 * 2.438 * 2.591 * 2170, minimal_distance = 100, efficiency_generator = [0.9, 1/0.7]):
         """
         The init fucntion.
         
-        carts the amount of carts available. This amount is put both at the top and bottom.
+        carts is the amount of carts available. This amount is put both at the top and bottom.
         track_dimensions is a list with the first element being the distance (in the x axis) while the second element is the height.
         mass_per_cart is a number representing the amount of mass per cart.
-        minimal_distance is a number which specifies the minimal amount of distance needed betwee carts.
-        efficiency_generator is a list with the first element being the efficiency of generating power and the second element being the efficiency of storing power. Default values are based on sources (which you can find in the report).
+        minimal_distance is a number which specifies the minimal amount of distance needed between carts.
+        efficiency_generator is a list with the first element being the efficiency of generating power and the second element being the efficiency of storing power. Default values are based on sources (which can be found in the report).
         """
         
-        self.carts_on_track = []# Each cart on the track will be reprisented by a number which indicates its position on the track.
+        self.carts_on_track = []# Each cart on the track will be represented by a number which indicates its position on the track.
         self.velocity = 0# The velocity of the consolidated cart.
-        self.carts_of_track = {"Bottom" : carts, "Top" : carts}# All the carts by default start at the top.
+        self.carts_of_track = {"Bottom" : carts, "Top" : carts}# Both at the bottom and the top the same amount of carts is started with.
         self.losses = {"Friction" : 0, "Efficiency" : 0}
         
-        self.angle = np.arctan(track_dimensions[1] / track_dimensions[0])# Calculate the angle of the tracks.
-        self.track_length = np.sqrt(track_dimensions[0]**2 + track_dimensions[1]**2)# Calculate the length of the tracks using Pythagoras.
+        self.angle = np.arctan(track_dimensions[1] / track_dimensions[0])# Calculate the angle of the track.
+        self.track_length = np.sqrt(track_dimensions[0]**2 + track_dimensions[1]**2)# Calculate the length of the tracks by using Pythagoras.
         self.track_height = track_dimensions[1]
         
         self.mass_per_cart = mass_per_cart
         self.minimal_distance = minimal_distance
         
-        self.force_of_generator = 0# This is one of the variables that can be used by the controller to control the tracks.
+        self.force_of_generator = 0# This is one of the variables that can be used by the controller to control the carts.
         self.efficiency_generator = efficiency_generator
         self.other_power = 0
     
     def get_friction(self, velocity = "NaN"):
         """
-        This function get's the friction of all the carts in total.
+        This function gets the friction of all the carts in total.
         
-        velocity can be specified and then the friction will be gotten in the case that the velocity is that. Otherwise that the velocity of the traintrack object will be used.
+        velocity can be specified and then the friction of that velocity will be obtained. Otherwise the velocity of the traintrack object will be used.
         """
         
         g = 9.81
@@ -54,7 +54,7 @@ class TrainTrack:
     
     def get_gravity(self):
         """
-        Get's the gravity of the entire system.
+        Gets the gravity of the entire system.
         """
         
         g = 9.81
@@ -62,7 +62,7 @@ class TrainTrack:
     
     def get_kinetic_energy_per_cart(self, velocity = "NaN"):
         """
-        Get's the kinetic energy per cart. The velocity can be specified if not then the velocity of the object will be used.
+        Gets the kinetic energy per cart. The velocity can be specified if not then the velocity of the object will be used.
         """
         
         if velocity == "NaN":
@@ -72,7 +72,7 @@ class TrainTrack:
     
     def add_cart(self, location = ""):
         """
-        This function adds a cart to the system. If the location is not specified is tries to figure it out itself. When a cart is added it is pretended it becomes part of the total system and thus instantly get's pulled up to speed. Then conservation of energy is used to get the new total velocity.
+        This function adds a cart to the system. If the location is not specified it tries to figure it out itself. When a cart is added it is pretended it becomes part of the total system and thus instantly gets pulled up to speed. Then conservation of energy is used to get the new total velocity.
         """
         
         if np.sign(self.velocity) > 0 and location == "":# If the location is not specified try to figure out where to put the cart.
@@ -100,7 +100,7 @@ class TrainTrack:
                 else:
                     return False
             elif location == "Bottom":
-                if self.carts_of_track["Bottom"] > 0:# Checks if there is a cart available on the bottom/
+                if self.carts_of_track["Bottom"] > 0:# Checks if there is a cart available on the bottom
                     self.carts_on_track.append(0)# Adds a cart to the bottom.
                     self.carts_of_track["Bottom"] = self.carts_of_track["Bottom"] - 1# Remove a cart.
                     return True
@@ -118,7 +118,7 @@ class TrainTrack:
         index is the index of the cart you want to remove.
         """
         
-        if self.carts_on_track[index] > self.track_length / 2:# Determines the location of the cart, generaly should be very oblvious (either completly at the top or completly at the bottom) but this function also allows for half way removal (altrough that doesn't make physics sense).
+        if self.carts_on_track[index] > self.track_length / 2:# Determines the location of the cart, generally should be very obvious (either completely at the top or completley at the bottom) but this function also allows for half way removal (altrough that doesn't make physics sense).
             location = "Top"
         elif self.carts_on_track[index] <= self.track_length / 2:
             location = "Bottom"
@@ -175,7 +175,7 @@ class TrainTrack:
     
     def return_data(self):
         """
-        A quick function that can be used for quick data reading. Generally should be used as a input for other functions/data analytics but can be nice for printing/debugging purposes.
+        A quick function that can be used for quick data reading. Generally should be used as an input for other functions/data analytics but can be nice for printing/debugging purposes.
         """
         
         return {"Positions": np.round(self.carts_on_track, 2), "Velocity" : np.round(self.velocity, 2), "Forces (gravity, friction, generator)" : [np.round(self.get_gravity()), np.round(self.get_friction()), np.round(self.force_of_generator)], "Power" : np.round(self.get_power()), "Other carts" : self.carts_of_track, "Losses (friction, efficiency)" : np.round([self.losses["Friction"], self.losses["Efficiency"]],1)}
