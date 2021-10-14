@@ -9,7 +9,7 @@ class Households:
     """
     def __init__(self, amount_of_households_per_type = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], power_consumption_per_type = [3500, 1000, 5000, 6900, 4200, 1, 0, 20000, 13000, 4000], profiel = "profielen Elektriciteit 2019 versie 1.00.csv"):
         """
-        The initialize fuction for the households class imports the data from a CSV file and then readies it by cleaning up the data and coverting it into actual power use.
+        The initialize fuction for the households class imports the data from a CSV file and then reades it by cleaning up the data and converting it into actual power use.
         
         amount_of_households_per_type is the amount of households in each type of the data imported. Needs to match the amount of data columns in the profile in length.
         power_consumption_per_type is the amount of power each of those types consumes in a year. Unit is KWh per year. Also needs to match the amount of data columns in length.
@@ -26,7 +26,7 @@ class Households:
         data["End time"] = pd.to_datetime(data["End time"], format="%d-%m-%Y %H:%M")
         
         for i in range(2, len(data.columns)):# Loop trough all the data columns (so not the time columns)
-            data = data.rename(columns={data.columns[i]:data.columns[i][5:]})# Remove the first 5 letters from each columns name since that only contains the version number.
+            data = data.rename(columns={data.columns[i]:data.columns[i][5:]})# Remove the first 5 letters from each columns name since that only contain the version number.
             data[data.columns[i]] = data[data.columns[i]].astype("float")# Convert all the numbbers as strings to floats
             
             if data[data.columns[i]].sum() > 1 + 10**-4 or data[data.columns[i]].sum() < 1 - 10**-4:# Check if the sum of each column is (nearly) one.
@@ -49,11 +49,11 @@ class Households:
         Based on the data in the households object it returns the amount power used. It uses linear interpolation between points to preserve continuity.
         
         time_seconds is a number in seconds, which can be more than a day, is the time of which you want to know the power usage.
-        time_days is a number in days which gets converted to second and then added to time in seconds.
+        time_days is a number in days which gets converted to seconds and then added to time in seconds.
         only_total is a boolean which decided if you want to have results split into categories or if you want just the total power usage.
         """
         
-        estimated_row_bot = math.floor(time_seconds / (15 * 60) + time_days * 24 * 4)# Makes a estimate for which row the data is in we are searching for.
+        estimated_row_bot = math.floor(time_seconds / (15 * 60) + time_days * 24 * 4)# Makes an estimate for which row the data is in we are searching for.
         wanted_time = time_seconds + time_days * 3600 * 24
         
         # print("Getting consumption at estimated index", estimated_row_bot)

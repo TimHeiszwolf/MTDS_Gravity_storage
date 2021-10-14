@@ -50,7 +50,7 @@ class WindSupply:
         only_total is a boolean which decided if you want to have results split into categories or if you want just the total power usage.
         """
         
-        estimated_row_bot = math.floor(time_seconds / (3600) + time_days * 24)# Makes a estimate for which row the data is in we are searching for.
+        estimated_row_bot = math.floor(time_seconds / (3600) + time_days * 24)# Makes an estimate for which row the data is in we are searching for.
         wanted_time = time_seconds + time_days * 3600 * 24
         
         # print("Getting consumption at estimated index", estimated_row_bot)
