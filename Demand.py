@@ -93,7 +93,7 @@ class HouseholdsDummy:
         
         day_factor = np.cos(2 * np.pi * time_days / 360)
         
-        return 2000000#self.multiplication * average_power * (1 - 0.5 * np.sin(2 * np.pi * (time_seconds + 3600) / (24 * 3600)) + 0.25 * day_factor)
+        return self.multiplication * average_power * (1 - 0.5 * np.sin(2 * np.pi * (time_seconds + 3600) / (24 * 3600)) + 0.25 * day_factor)
 
 from mpl_toolkits.mplot3d import axes3d
 from matplotlib import pyplot
@@ -106,5 +106,5 @@ households = Households()
 #print(households.data.head(100))
 print(households.data)
 #print(households.consumption(1400, 300))
-make_3Dfunction_plot(households.consumption)
+make_3Dfunction_plot(households.consumption, zlabel="Power (Watts)")
 #"""
