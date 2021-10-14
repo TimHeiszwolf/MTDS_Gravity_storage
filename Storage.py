@@ -7,11 +7,11 @@ class TrainTrack:
     """
     This class is the class that actually simulates the tracks/storage solution. See the report for details. In short it simulates the carts on the tracks as one giant cart and thus applies friction/gravity/braking only to that giant monolithic block. It adds carts by pretending the mass of the giant block increases and doing a convervation of energy calculation. It does keep track of the location of each cart and based on that it can remove carts. If that happens the power output is increased such that the kinetic energy is outputed trough that.
     """
-    def __init__(self, carts = 100, track_dimensions = [20000, 2000], mass_per_cart = 12.192 * 2.438 * 2.591 * 2170, minimal_distance = 100, efficiency_generator = [0.9, 1/0.7]):
+    def __init__(self, carts = 150, track_dimensions = [20000, 2000], mass_per_cart = 12.192 * 2.438 * 2.591 * 2170, minimal_distance = 100, efficiency_generator = [0.9, 1/0.7]):
         """
         The init fucntion.
         
-        carts the amount of carts available. All carts by default start at the top.
+        carts the amount of carts available. This amount is put both at the top and bottom.
         track_dimensions is a list with the first element being the distance (in the x axis) while the second element is the height.
         mass_per_cart is a number representing the amount of mass per cart.
         minimal_distance is a number which specifies the minimal amount of distance needed betwee carts.
@@ -20,7 +20,7 @@ class TrainTrack:
         
         self.carts_on_track = []# Each cart on the track will be reprisented by a number which indicates its position on the track.
         self.velocity = 0# The velocity of the consolidated cart.
-        self.carts_of_track = {"Bottom" : 50, "Top" : carts}# All the carts by default start at the top.
+        self.carts_of_track = {"Bottom" : carts, "Top" : carts}# All the carts by default start at the top.
         self.losses = {"Friction" : 0, "Efficiency" : 0}
         
         self.angle = np.arctan(track_dimensions[1] / track_dimensions[0])# Calculate the angle of the tracks.
@@ -51,7 +51,6 @@ class TrainTrack:
             velocity = self.velocity
         
         return -np.sign(velocity) *  len(self.carts_of_track) * (density_air * velocity**2 * drag_coefficient + np.cos(self.angle) * g * self.mass_per_cart * friction_coefficient)#TODO Make into rolling resistance
-    
     
     def get_gravity(self):
         """
@@ -125,11 +124,10 @@ class TrainTrack:
             location = "Bottom"
         
         energy_left_over = self.get_kinetic_energy_per_cart()# Gets how much energy is left.
+        self.other_power = self.other_power -  energy_left_over / delta_time# Adds the energy to other power.
         
         self.carts_on_track.pop(index)# Removes that cart.
         self.carts_of_track[location] = self.carts_of_track[location] + 1# Adds the cart to the stockpile.
-        
-        self.other_power = self.other_power -  energy_left_over / delta_time# Adds the energy to other power.
     
     def get_power(self):
         """
@@ -138,7 +136,6 @@ class TrainTrack:
         efficiency = self.get_efficiency_generator()
         
         return self.efficiency_generator[0] * self.other_power + efficiency * self.force_of_generator * self.velocity
-    
     
     def do_tick(self, delta_time):
         """
@@ -165,6 +162,10 @@ class TrainTrack:
         self.velocity = self.velocity + acceleration * delta_time
     
     def get_efficiency_generator(self):
+        """
+        Gets the efficiency of the generator since that varries based on wheter is it pulling the carts up or letting them decent.
+        """
+        
         if self.velocity > 0:
             efficiency = self.efficiency_generator[1]
         elif self.velocity <= 0:
@@ -176,6 +177,7 @@ class TrainTrack:
         """
         A quick function that can be used for quick data reading. Generally should be used as a input for other functions/data analytics but can be nice for printing/debugging purposes.
         """
+        
         return {"Positions": np.round(self.carts_on_track, 2), "Velocity" : np.round(self.velocity, 2), "Forces (gravity, friction, generator)" : [np.round(self.get_gravity()), np.round(self.get_friction()), np.round(self.force_of_generator)], "Power" : np.round(self.get_power()), "Other carts" : self.carts_of_track, "Losses (friction, efficiency)" : np.round([self.losses["Friction"], self.losses["Efficiency"]],1)}
         
 
