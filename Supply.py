@@ -3,12 +3,11 @@ import pandas as pd
 import datetime
 import math
 
-
 class WindSupply:
     """
     This class will calculate the poweroutput form windmills with the windspeeds in the database
     """
-    def __init__(self, amount_of_windmills = 36, windspeeds_profile = "wind_speed_ijmuiden.txt"):
+    def __init__(self, amount_of_windmills = 60, windspeeds_profile = "wind_speed_ijmuiden.txt"):
         
         data = pd.read_csv(windspeeds_profile)
         data["Start time"] = pd.to_datetime(data["date"], format="%Y%m%d")
@@ -17,32 +16,31 @@ class WindSupply:
         #data["max wind speed"] = data["max wind speed"] * 0.1        
         start_time = data["Start time"][0]
         
+        self.amount_of_windmills = amount_of_windmills
+        
         time_since_start = data["Start time"] - start_time
         data["Seconds"] = [time.total_seconds() for time in time_since_start]
         data["Days"] = data["Seconds"] / (3600 * 24)
              
-        ρ = 1.225# kg/m^3 air density
-        Cp = 0.3# power efficiency factor
-        A = 5027# sweep area in m^2
-        K = 0# efficiency difference land sea
-        T = 60# amount of windmills in the park
-        year_amount = 435*10**9# wh per year
+        ρ = 1.225# Air density in kg/m^3 
+        Cp = 0.3# Power efficiency factor
+        A = 5027# Sweep area in m^2
+        K = 0# Efficiency difference land sea
+        T = 60# Amount of windmills in the park
+        year_amount = 435 * 10**9# wh per year in the park
         
-        hour_amount = year_amount/(365*24*T) #wh per hour
+        hour_amount = year_amount/(365 * 24 * T) #wh per hour
         
         data["output"] = 1/2 * ρ * Cp * A * (data["wind speed"])**3 #calculating the power output in watt for each given windspeed.
         
-        data.loc[(data.output > 2000000),'output']=2000000
+        data.loc[(data.output > 2000000),'output'] = 2000000
         
         K = hour_amount / data["output"].mean()
         data["output_adjusted"] = K * 1.33 * 1/2 * ρ * Cp * A * (data["wind speed"])**3 #calculating the power output in watt for each given windspeed.
+        data.loc[(data.output_adjusted > 2000000),'output_adjusted'] = 2000000
         
         self.data = data
-        
     
-        data.loc[(data.output_adjusted > 2000000),'output_adjusted']=2000000
-       
-        
     def output(self, time_seconds, time_days = 0):
         """
         Based on the data in the households object it returns the amount power used. It uses linear interpolation between points to preserve continuity.
@@ -69,7 +67,7 @@ class WindSupply:
         
         interpolation_factor = (wanted_time - self.data["Seconds"][estimated_row_bot]) / (self.data["Seconds"][estimated_row_bot + 1] - self.data["Seconds"][estimated_row_bot]) # time_difference_for_bot_point / time_difference_between_points
         
-        return self.data["output"][estimated_row_bot] + interpolation_factor * (self.data["output"][estimated_row_bot + 1] - self.data["output"][estimated_row_bot])
+        return self.amount_of_windmills * (self.data["output"][estimated_row_bot] + interpolation_factor * (self.data["output"][estimated_row_bot + 1] - self.data["output"][estimated_row_bot]))
 
 
 class WindSupplyDummy:
@@ -83,7 +81,7 @@ class WindSupplyDummy:
         
         day_factor = np.cos(2 * np.pi * time_days / 360)
         
-        return 1000000#self.multiplication * average_power * (1 - 0.5 * np.sin(2 * np.pi * time_seconds / (24 * 3600)) + 0.25 * day_factor)
+        return self.multiplication * average_power * (1 - 0.5 * np.sin(2 * np.pi * time_seconds / (24 * 3600)) + 0.25 * day_factor)
 
 from mpl_toolkits.mplot3d import axes3d
 from matplotlib import pyplot
