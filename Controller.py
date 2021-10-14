@@ -26,7 +26,7 @@ class Controller:
         self.demand = demand
         self.train_track = train_track
         
-        self.data = {"Time" : [], "Velocity" : [], "Amount carts on track" : [], "Supply" : [], "Demand" : [], "Storage" : [], "Difference" : [], "Losses": [], "Amount carts on top" : [], "Amount carts on bottom" : []}
+        self.data = {"Time" : [], "Velocity" : [], "Satisfaction" : [], "Amount carts on track" : [], "Supply" : [], "Demand" : [], "Storage" : [], "Difference" : [], "Losses": [], "Amount carts on top" : [], "Amount carts on bottom" : []}
         
         
         
@@ -130,11 +130,12 @@ class Controller:
         
         self.data["Time"].append(self.time)
         self.data["Velocity"].append(self.train_track.velocity)
+        self.data["Satisfaction"].append((self.supply.output(self.time) - self.train_track.get_power()) / self.demand.consumption(self.time))#data["Satisfaction"] =  ((data["Supply"] - data["Storage"]) / data["Demand"])
         self.data["Amount carts on track"].append(len(self.train_track.carts_on_track))
-        self.data["Supply"].append(self.supply.output(self.time))# Inefficient that we call these functions 3 times (here twice and once in controller).
+        self.data["Supply"].append(self.supply.output(self.time))# Inefficient that we call these functions 4 times (here twice and once in controller).
         self.data["Demand"].append(self.demand.consumption(self.time))
         self.data["Storage"].append(self.train_track.get_power())
-        self.data["Difference"].append(self.demand.consumption(self.time) - self.supply.output(self.time) + self.train_track.get_power())
+        self.data["Difference"].append(self.supply.output(self.time) - self.train_track.get_power() - self.demand.consumption(self.time))# Positive is energy left over, negative is energy shortage
         self.data["Losses"].append(sum(self.train_track.losses.values()))
         self.data["Amount carts on top"].append(self.train_track.carts_of_track["Top"])
         self.data["Amount carts on bottom"].append(self.train_track.carts_of_track["Bottom"])
@@ -155,7 +156,7 @@ class Controller:
             self.do_tick()
             #print(self.get_debug_print())
         #print(self.get_debug_print())
-        return self.demand.consumption(self.time) - self.supply.output(self.time) + self.train_track.get_power()
+        return self.supply.output(self.time) - self.train_track.get_power() - self.demand.consumption(self.time)# Positive is energy left over, negative is energy shortage
 
 """
 households = Households()
