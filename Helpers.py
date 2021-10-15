@@ -8,7 +8,7 @@ from matplotlib import pyplot
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
-def make_3Dfunction_plot(function, amount_of_days = 364, increments_in_day = 200, zlabel = ""):
+def make_3Dfunction_plot(function, amount_of_days = 364, increments_in_day = 200, zlabel = "", title = ""):
     """
     Makes a 3D plot like in the paper of Elke Klaasen (on the X axis the hours of the day, Y axis the days (of the year) and on the Z axis the actual value). Sadly makes a surface plot instead of a wireframe plot this is because the heatmap didn't work properly with the wireframe.
     
@@ -56,6 +56,7 @@ def make_3Dfunction_plot(function, amount_of_days = 364, increments_in_day = 200
     wf.set_xlabel("Time (hours)")
     wf.set_ylabel("Time (days)")
     wf.set_zlabel(zlabel)
+    wf.set_title(title)
     wf.set_xlim(0, 24)
     wf.set_ylim(0, amount_of_days)
     
