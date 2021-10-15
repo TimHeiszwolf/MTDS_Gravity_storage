@@ -16,24 +16,22 @@ from Demand import HouseholdsDummy
 from Storage import TrainTrack
 from Controller import Controller
 
-
+### SETTINGS
 days_to_simulate = 364
-
-
-
-
-
-train_track = TrainTrack(carts = 500000)
+train_track = TrainTrack(carts = 5000000)
 supply = WindSupply(amount_of_windmills = 60)#WindSupplyDummy(100000)
-demand = Households(amount_of_households_per_type = [125000, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-
+demand = Households(amount_of_households_per_type = [100000, 0, 0, 0, 0, 0, 0, 0, 0, 0])# Theoretically 125000
 controller = Controller(train_track = train_track, supply = supply, demand = demand, delta_time = 10)
 
-make_3Dfunction_plot(controller.get_difference_supply_demand, amount_of_days = days_to_simulate, zlabel = "Difference in power (Watts)")
-make_3Dfunction_plot(controller.get_sastisfaction_supply_demand, amount_of_days = days_to_simulate, zlabel = "Satisfaction")
-make_3Dfunction_plot(controller.simulate, amount_of_days = days_to_simulate, zlabel = "Difference in power (Watts)")#controller.simulate(days_to_simulate*24*3600)
+
+### SIMULATION AND PLOTTING
+#make_3Dfunction_plot(controller.get_difference_supply_demand, amount_of_days = days_to_simulate, zlabel = "Difference in power (Watts)")
+#make_3Dfunction_plot(controller.get_sastisfaction_supply_demand, amount_of_days = days_to_simulate, zlabel = "Satisfaction")
+controller.simulate(3600)# First simulate a hour to stabalize the stystem. This will cause the end result to have a constant first hour.
+make_3Dfunction_plot(controller.simulate, amount_of_days = days_to_simulate, zlabel = "Difference in power (Watts)")
 
 data = pd.DataFrame(controller.data)
+data.to_csv("364Days_100000.csv")
 print(data)
  
 plt.plot(data["Time"] / (3600 * 24), data["Supply"], label="Supply")
@@ -50,7 +48,7 @@ plt.show()
 
 plt.plot(data["Time"] / (3600 * 24), data["Velocity"])
 plt.xlabel("Time (days)")
-plt.ylabel("Velocity on track")
+plt.ylabel("Velocity on track (meter per second)")
 plt.show()
 
 plt.plot(data["Time"] / (3600 * 24), data["Amount carts on top"], label = "Amount of carts at top")
@@ -60,5 +58,4 @@ plt.ylabel("Amount of carts")
 plt.legend(loc="upper left")
 plt.show()
 
-
-data.to_excel("Test.xlsx")
+print("Supply minus demand sum", np.sum(data["Supply"]) - np.sum(data["Demand"]))
