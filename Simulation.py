@@ -16,13 +16,15 @@ from Demand import HouseholdsDummy
 from Storage import TrainTrack
 from Controller import Controller
 
+
 ### SETTINGS
 days_to_simulate = 364
-amount_of_carts = 10000000
-amount_households = 125000
+amount_of_carts = 40000
+amount_households = 67000
+amount_windmils = 60
 
 train_track = TrainTrack(carts = amount_of_carts/2)
-supply = WindSupply(amount_of_windmills = 60)#WindSupplyDummy(100000)
+supply = WindSupply(amount_of_windmills = amount_windmils)#WindSupplyDummy(100000)
 demand = Households(amount_of_households_per_type = [amount_households, 0, 0, 0, 0, 0, 0, 0, 0, 0])# Theoretically 125000
 controller = Controller(train_track = train_track, supply = supply, demand = demand, delta_time = 10)
 
@@ -35,6 +37,7 @@ make_3Dfunction_plot(controller.simulate, amount_of_days = days_to_simulate, zla
 
 data = pd.DataFrame(controller.data)
 data.to_csv(str(days_to_simulate) + "days" + str(amount_households) + "households" + str(amount_of_carts) + "carts.csv")
+#data = pd.read_csv("364days62500households10000000carts.csv")
 print(data)
 
 plt.plot(data["Time"] / (3600 * 24), data["Supply"], label="Supply")
