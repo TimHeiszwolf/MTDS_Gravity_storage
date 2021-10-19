@@ -38,8 +38,10 @@ make_3Dfunction_plot(controller.simulate, amount_of_days = days_to_simulate, zla
 data = pd.DataFrame(controller.data)
 data.to_csv(str(days_to_simulate) + "days" + str(amount_households) + "households" + str(amount_of_carts) + "carts.csv")
 #data = pd.read_csv("364days62500households10000000carts.csv")
+data = data.iloc[360:]# Drop the first 360 rows (1 hour) of the data
 print(data)
 
+plt.figure(figsize = (8,8))
 plt.plot(data["Time"] / (3600 * 24), data["Supply"], label="Supply")
 plt.plot(data["Time"] / (3600 * 24), data["Demand"], label="Demand")
 plt.xlabel("Time (days)")
@@ -47,21 +49,22 @@ plt.ylabel("Supply (Watts)")
 plt.legend(loc="upper left")
 plt.show()
 
+plt.figure(figsize = (8,8))
 plt.plot(data["Time"] / (3600 * 24), data["Satisfaction"])
 plt.xlabel("Time (days)")
 plt.ylabel("Satisfaction")
 plt.show()
 
+plt.figure(figsize = (8,8))
 plt.plot(data["Time"] / (3600 * 24), data["Velocity"])
 plt.xlabel("Time (days)")
 plt.ylabel("Velocity on track (meter per second)")
 plt.show()
 
+plt.figure(figsize = (8,8))
 plt.plot(data["Time"] / (3600 * 24), data["Amount carts on top"], label = "Amount of carts at top")
 plt.plot(data["Time"] / (3600 * 24), data["Amount carts on bottom"], label = "Amount of carts at bottom")
 plt.xlabel("Time (days)")
 plt.ylabel("Amount of carts")
 plt.legend(loc="upper left")
 plt.show()
-
-print("Supply minus demand sum", np.sum(data["Supply"]) - np.sum(data["Demand"]))
