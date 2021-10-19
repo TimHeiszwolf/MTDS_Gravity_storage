@@ -29,7 +29,7 @@ class WindSupply:
         T = 60# Amount of windmills in the park
         year_amount = 435 * 10**9# wh per year in the park
         
-        hour_amount = year_amount/(365 * 24 * T) #wh per hour
+        hour_amount = year_amount / (365 * 24 * T) #wh per hour
         
         data["output"] = 1/2 * ρ * Cp * A * (data["wind speed"])**3 #calculating the power output in watt for each given windspeed.
         
@@ -91,9 +91,9 @@ from Helpers import make_3Dfunction_plot
 
 """
 wind_supply = WindSupply()
-make_3Dfunction_plot(wind_supply.output)
+make_3Dfunction_plot(wind_supply.output, zlabel = "Power (Watts)")
 
 wind_supply = WindSupplyDummy()
-make_3Dfunction_plot(wind_supply.output)
+make_3Dfunction_plot(wind_supply.output, zlabel = "Power (Watts)")
 #"""
 
