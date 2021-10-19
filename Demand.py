@@ -106,5 +106,5 @@ households = Households()
 #print(households.data.head(100))
 print(households.data)
 #print(households.consumption(1400, 300))
-make_3Dfunction_plot(households.consumption, zlabel="Power (Watts)")
+make_3Dfunction_plot(households.consumption, zlabel = "Power (Watts)")
 #"""
