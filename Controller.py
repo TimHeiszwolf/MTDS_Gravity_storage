@@ -192,3 +192,11 @@ data = pd.DataFrame(controller.data)
 
 print(data)
 #"""
+"""
+train_track = TrainTrack(carts = 0)
+supply = WindSupply()
+demand = Households(amount_of_households_per_type = [125000, 0, 0, 0, 0, 0, 0, 0, 0, 0])# Theoretically 125000
+controller = Controller(train_track = train_track, supply = supply, demand = demand, delta_time = 120)
+
+make_3Dfunction_plot(controller.get_sastisfaction_supply_demand, zLabel = "Satisfaction")
+#"""
