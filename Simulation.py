@@ -19,7 +19,7 @@ from Controller import Controller
 
 ### SETTINGS
 days_to_simulate = 364
-amount_of_carts = 40000
+amount_of_carts = 30000
 amount_households = 67000
 amount_windmils = 60
 
