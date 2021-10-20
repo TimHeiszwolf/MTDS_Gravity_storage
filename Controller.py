@@ -168,11 +168,22 @@ class Controller:
     
     def get_sastisfaction_supply_demand(self, time_seconds, time_days = 0):
         """
-        This function gets the satisfactionf of the demand by the supply without the influence of the storage system. This sub-function is mainly used to make plots for the report.
+        This function gets the satisfaction of the demand by the supply without the influence of the storage system. This sub-function is mainly used to make plots for the report.
         """
         
         time = time_seconds + 3600 * 24 * time_days
         return self.supply.output(time) / self.demand.consumption(time)
+        
+    def get_sastisfaction_supply_demand_storage(self, time_seconds, time_days = 0):
+        """
+        This function gets the satisfaction of the demand by the supply with the influence of the storage system. This sub-function is mainly used to make plots for the report.
+        """
+        
+        time = time_seconds + 3600 * 24 * time_days
+        
+        self.simulate(time_seconds, time_days)
+        
+        return (self.supply.output(time) - self.train_track.get_power()) / self.demand.consumption(time)
 
 """
 households = Households()
